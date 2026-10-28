@@ -45,121 +45,72 @@ STEP-5: Display the obtained cipher text.
 
 ## Program:
 ```
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 
-char keyTable[5][5];
+char mat[5][5];
 
-void generateKeyTable(char key[]) {
-    int used[26] = {0};
-    int i, j, k = 0;
+int main()
+{
+    char text[100], key[50], p[100], c[100];
+    int used[26] = {0}, i, j, k = 0, n = 0;
+    int r1, c1, r2, c2;
 
-    for (i = 0; key[i] != '\0'; i++) {
-        char ch = tolower(key[i]);
-        if (ch == 'j') ch = 'i';
-
-        if (ch >= 'a' && ch <= 'z' && !used[ch - 'a']) {
-            keyTable[k / 5][k % 5] = ch;
-            used[ch - 'a'] = 1;
-            k++;
-        }
-    }
-
-    for (i = 0; i < 26; i++) {
-        if (i + 'a' == 'j') continue;
-        if (!used[i]) {
-            keyTable[k / 5][k % 5] = i + 'a';
-            k++;
-        }
-    }
-}
-
-
-void findPosition(char ch, int *row, int *col) {
-    int i, j;
-    if (ch == 'j') ch = 'i';
-
-    for (i = 0; i < 5; i++) {
-        for (j = 0; j < 5; j++) {
-            if (keyTable[i][j] == ch) {
-                *row = i;
-                *col = j;
-                return;
-            }
-        }
-    }
-}
-
-
-void encrypt(char text[]) {
-    int i, r1, c1, r2, c2;
-    char a, b;
-
-    for (i = 0; i < strlen(text); i += 2) {
-        a = text[i];
-        b = text[i + 1];
-
-        findPosition(a, &r1, &c1);
-        findPosition(b, &r2, &c2);
-
-        if (r1 == r2) {
-            printf("%c%c", keyTable[r1][(c1 + 1) % 5],
-                           keyTable[r2][(c2 + 1) % 5]);
-        } 
-        else if (c1 == c2) {
-            printf("%c%c", keyTable[(r1 + 1) % 5][c1],
-                           keyTable[(r2 + 1) % 5][c2]);
-        } 
-        else {
-            printf("%c%c", keyTable[r1][c2],
-                           keyTable[r2][c1]);
-        }
-    }
-}
-
-int main() {
-    char key[50], text[100];
-    int i, j = 0;
-
-    printf("Enter the keyword: ");
+    printf("Enter Plaintext: ");
+    scanf("%s", text);
+    printf("Enter Keyword: ");
     scanf("%s", key);
 
-    printf("Enter the plaintext: ");
-    scanf("%s", text);
-
-    
-    for (i = 0; i < strlen(text); i++) {
-        text[i] = tolower(text[i]);
-        if (text[i] == 'j') text[i] = 'i';
-    }
-
-    char processed[100];
-    for (i = 0; i < strlen(text); i++) {
-        processed[j++] = text[i];
-        if (text[i] == text[i + 1]) {
-            processed[j++] = 'x';
+    for(i = 0; key[i]; i++)
+    {
+        char ch = tolower(key[i]);
+        if(ch == 'j') ch = 'i';
+        if(ch >= 'a' && ch <= 'z' && !used[ch-'a'])
+        {
+            mat[k/5][k%5] = ch;
+            used[ch-'a'] = 1;
+            k++;
         }
     }
 
-    if (j % 2 != 0) {
-        processed[j++] = 'z';
+    for(i = 0; i < 26; i++)
+        if(i != 9 && !used[i])
+            mat[k/5][k++%5] = 'a' + i;
+
+    for(i = 0; text[i]; i++)
+    {
+        p[n++] = tolower(text[i]) == 'j' ? 'i' : tolower(text[i]);
+        if(p[n-1] == tolower(text[i+1]) && text[i+1])
+            p[n++] = 'x';
     }
-    processed[j] = '\0';
+    if(n % 2) p[n++] = 'x';
+    p[n] = '\0';
 
-    generateKeyTable(key);
-
-    printf("\nKey Matrix:\n");
-    for (i = 0; i < 5; i++) {
-        for (j = 0; j < 5; j++) {
-            printf("%c ", keyTable[i][j]);
+    for(i = 0; i < n; i += 2)
+    {
+        for(j = 0; j < 25; j++)
+        {
+            if(mat[j/5][j%5] == p[i])
+                r1 = j/5, c1 = j%5;
+            if(mat[j/5][j%5] == p[i+1])
+                r2 = j/5, c2 = j%5;
         }
-        printf("\n");
+
+        if(r1 == r2)
+            c[i] = mat[r1][(c1+1)%5],
+            c[i+1] = mat[r2][(c2+1)%5];
+        else if(c1 == c2)
+            c[i] = mat[(r1+1)%5][c1],
+            c[i+1] = mat[(r2+1)%5][c2];
+        else
+            c[i] = mat[r1][c2],
+            c[i+1] = mat[r2][c1];
     }
+    c[n] = '\0';
 
-    printf("\nCipher Text: ");
-    encrypt(processed);
-
+    printf("Cipher Text: %s\n", c);
     return 0;
 }
 
@@ -169,7 +120,7 @@ int main() {
 
 
 ## Output:
-<img width="1726" height="911" alt="image" src="https://github.com/user-attachments/assets/7206e55e-af2a-442a-9ddb-0b7930881fea" />
+<img width="1917" height="672" alt="image" src="https://github.com/user-attachments/assets/956937bd-9e64-47f5-bd9a-8bf32d753ac6" />
 
 
 ## Result
